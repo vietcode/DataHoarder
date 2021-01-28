@@ -3,10 +3,12 @@
 const fs = require("fs");
 
 const Discord = require("discord.js");
-const { prefix, token } = require("./config");
 
-const client = new Discord.Client();
-const commands = client.commands = new Discord.Collection();
+require("nvar")();
+const { PREFIX = "/", DISCORD_TOKEN } = process.env;
+
+const bot = new Discord.Client();
+const commands = bot.commands = new Discord.Collection();
 
 const commandFiles = fs.readdirSync("./commands").filter(file => file.endsWith(".js"));
 
@@ -19,12 +21,12 @@ for (const file of commandFiles) {
 	commands.set(command.name, command);
 }
 
-client.on("ready", () => {
-  console.log(`Logged in as ${client.user.tag}!`);
+bot.on("ready", () => {
+  console.log(`Logged in as ${bot.user.tag}!`);
 });
 
-client.on("message", message => {
-  const args = message.content.slice(prefix.length).trim().split(/ +/);
+bot.on("message", async message => {
+  const args = message.content.slice(PREFIX.length).trim().split(/ +/);
   const commandName = args.shift().toLowerCase();
 
   const command = commands.get(commandName)
@@ -40,6 +42,7 @@ client.on("message", message => {
       errors.push(`You didn't provide any arguments, ${message.author}!`);
     }
 
+    // Validates arguments.
     args.forEach((arg, index) => {
       const { name, type } = params[index];
 
@@ -57,19 +60,20 @@ client.on("message", message => {
       }
     });
 
+    // Replies with error if any.
     if (errors.length) {
       if (command.usage) {
-        errors.push(`Usage: \`${prefix}${command.name} ${command.usage}\``);
+        errors.push(`Usage: \`${PREFIX}${command.name} ${command.usage}\``);
       }
 
       return message.channel.send(errors.join("\n"));
     }
 
-    command.execute(message, ...args);
+    await command.execute(message, ...args);
   } catch (error) {
     console.error(error);
     message.reply("there was an error trying to execute that command!");
   }
 });
 
-client.login(token);
+bot.login(DISCORD_TOKEN);

@@ -16,7 +16,7 @@ module.exports = {
    * @param {Discord.Message} message - The incoming chat message.
    * @param {URL} url The URL to download
    */
-	execute(message, url) {
+	async execute(message, url) {
     message.channel.send(`Downloading ${ url }`);
 	},
 };

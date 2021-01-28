@@ -16,15 +16,15 @@ module.exports = {
    * @param {Discord.Message} message - The incoming chat message.
    * @param {URL} url The URL to download
    */
-	execute(message, url) {
+	async execute(message, url) {
     const commands = /** @type { Discord.Collection } */(message.client.commands);
     const { host } = url;
 
     if (host === "fshare.vn") {
-      commands.get("fshare").execute(message, url);
+      return commands.get("fshare").execute(message, url);
     } else {
       // Direct links.
-      message.channel.send(`Mirroring ${ url }`);
+      return commands.get("download").execute(message, url);
     }
 	},
 };

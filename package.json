@@ -3,16 +3,23 @@
   "version": "0.1.0",
   "description": "",
   "main": "index.js",
+  "bin": {
+    "rclone": "./bin/rclone"
+  },
   "scripts": {
     "start": "node index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
   "license": "MIT",
+  "engines": {
+    "node": ">=14.0"
+  },
   "dependencies": {
     "bufferutil": "^4.0.3",
-    "discord.js": "^12.5.1",
+    "discord.js": "github:discordjs/discord.js",
     "erlpack": "github:discord/erlpack",
+    "node-fetch": "^3.0.0-beta.9",
     "nvar": "^1.3.1",
     "utf-8-validate": "^5.0.4",
     "zlib-sync": "^0.1.7"
