@@ -25,7 +25,7 @@ module.exports = {
    * @param {URL} url The URL to download
    */
 	async execute(message, url) {
-    await message.reply(`Your requested download has been added to the queue.`);
+    const reply = await message.reply(`Your requested download has been added to the queue.`);
 
     const response = await fetch(url, {
       method: "get",
@@ -54,8 +54,14 @@ module.exports = {
       console.log(`stderr: ${data}`);
     });
 
+    // Updates bot's reply with progress.
+    // @TODO: Better formatting.
     rcat.stdout.on("data", (data) => {
-      console.log(`stdout: ${data}`);
+      reply.edit(data.toString());
+    });
+
+    rcat.stdout.on("end", () => {
+      reply.edit("File is uploaded");
     });
 
     response.body.pipe(rcat.stdin);
