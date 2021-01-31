@@ -19,6 +19,8 @@ A bot for hoarding any data from Discord.
   - `PREFIX`: (optional) custom prefix for the commands. Default to `/`.
   - `RCLONE_DRIVE_CLIENT_ID`: (optional) Google's client ID for rclone.
   - `RCLONE_DRIVE_CLIENT_SECRET`: (optional) Google's client secret for rclone.
+  - `FSHARE_USER_EMAIL`: VIP email to login.
+  - `FSHARE_PASSWORD`: VIP password to login.
 - Inside the project, `npm install` to install dependencies.
 - `npm start` to start the bot.
 

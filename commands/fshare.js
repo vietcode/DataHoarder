@@ -83,7 +83,7 @@ module.exports = {
    * @param {Discord.Message} message - The incoming chat message.
    * @param {URL} url The URL to download
    */
-	async execute(message, url, password = "") {
+  async execute(message, url, password = "") {
     const { token, session_id } = await login();
     const { location } = await post("/session/download", {
       url,
@@ -96,5 +96,5 @@ module.exports = {
 
     const commands = /** @type { Discord.Collection } */(message.client.commands);
     return commands.get("download").execute(message, new URL(location));
-	},
+  },
 };
