@@ -34,6 +34,10 @@ bot.on("message", async message => {
 
   if (!command) return;
 
+  if (command.guildOnly && message.channel.type === "dm") {
+    return message.reply(`I can't execute that command inside DMs!`);
+  }
+
   try {
     const params = command.params || [];
     let errors = [];

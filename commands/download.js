@@ -13,6 +13,7 @@ module.exports = {
   name: "download",
   aliases: [],
   description: "Downloads a file at an URL to a Google Drive folder",
+  guildOnly: true,
   params: [
     {
       name: "url",

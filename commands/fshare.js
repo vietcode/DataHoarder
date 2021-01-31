@@ -67,6 +67,7 @@ module.exports = {
   name: "fshare",
   aliases: [],
   description: "Mirroring from fshare.vn",
+  guildOnly: true,
   params: [
     {
       name: "url",

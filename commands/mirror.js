@@ -4,6 +4,7 @@ module.exports = {
   name: "mirror",
   aliases: [],
   description: "Mirroring a URL",
+  guildOnly: true,
   params: [
     {
       name: "url",
