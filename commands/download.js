@@ -27,7 +27,7 @@ module.exports = {
    */
 	async execute(message, url) {
     const { pathname } = url;
-    const filename = basename(pathname);
+    const filename = decodeURIComponent(basename(pathname));
 
     const reply = await message.reply(`**Filename**: ${ filename }\n**Status**: Pending`);
 
