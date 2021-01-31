@@ -20,7 +20,7 @@ module.exports = {
     const commands = /** @type { Discord.Collection } */(message.client.commands);
     const { host } = url;
 
-    if (host === "fshare.vn") {
+    if (/(www\.)?fshare\.vn/.test(host)) {
       return commands.get("fshare").execute(message, url);
     } else {
       // Direct links.
