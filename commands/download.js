@@ -3,6 +3,7 @@ const { spawn } = require("child_process");
 
 const Discord = require("discord.js");
 const fetch = require("node-fetch");
+const { throttle } = require("throttle-debounce");
 
 const CWD = process.cwd();
 const RCLONE = join(CWD, "bin", "rclone");
@@ -25,7 +26,10 @@ module.exports = {
    * @param {URL} url The URL to download
    */
 	async execute(message, url) {
-    const reply = await message.reply(`Your requested download has been added to the queue.`);
+    const { pathname } = url;
+    const filename = basename(pathname);
+
+    const reply = await message.reply(`**Filename**: ${ filename }\n**Status**: Pending`);
 
     const response = await fetch(url, {
       method: "get",
@@ -36,16 +40,35 @@ module.exports = {
       throw Error(response.status);
     }
 
-    const { pathname } = url;
+    const startedAt = Date.now();
+    const total = Number(response.headers.get("content-length"));
+    let done = 0;
+
+    reply.edit(`**Filename**: ${ filename }\n**Status**: ${ progress(done, total)}`);
+
+    // Throttle the progress update.
+    const throttled = throttle(
+      250,
+      () => {
+        reply.edit(`**Filename**: ${ filename }\n**Status**: ${ progress(done, total)}`);
+      },
+    );
+
+    // Update progress.
+    response.body.on("data", (chunk) => {
+      done += chunk.length;
+      return throttled();
+    });
+
+    response.body.on("end", (chunk) => {
+      reply.edit(`**Filename**: ${ filename }\n**Status**: Finishing last bytes...`);
+    });
 
     const args = [
       "--config",
       CONFIG,
       "rcat",
-      `target:${ basename(pathname) }`,
-      "--progress",
-      "--stats=2s",
-      "--stats-one-line",
+      `target:${ filename }`,
     ]
 
     const rcat = spawn(RCLONE, args,);
@@ -54,16 +77,31 @@ module.exports = {
       console.log(`stderr: ${data}`);
     });
 
-    // Updates bot's reply with progress.
-    // @TODO: Better formatting.
-    rcat.stdout.on("data", (data) => {
-      reply.edit(data.toString());
-    });
-
     rcat.stdout.on("end", () => {
-      reply.edit("File is uploaded");
+      reply.edit(`**Filename**: ${ filename }\n**Status**: Uploaded.`);
     });
 
     response.body.pipe(rcat.stdin);
 	},
 };
+
+function progress(done, total) {
+  return `Downloading ${ formatBytes(done) } of ${ formatBytes(total) }`;
+}
+
+/**
+ * Formats bytes into human-readable units.
+ * @param {number} bytes The number of bytes
+ * @param {number} [decimals=2] Number of decimal points
+ */
+function formatBytes(bytes, decimals = 2) {
+  if (bytes === 0) return "0 Bytes";
+
+  const k = 1024;
+  const dm = decimals < 0 ? 0 : decimals;
+  const sizes = ["Bytes", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"];
+
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + " " + sizes[i];
+}
