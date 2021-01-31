@@ -53,7 +53,11 @@ bot.on("message", async message => {
       switch (type) {
         case "url":
           try {
-            args[index] = new URL(arg);
+            const url = new URL(arg);
+            if (url.protocol === "file:") {
+              throw new Error("File protocol is not supported");
+            }
+            args[index] = url;
           } catch(_) {
             errors.push(`Invalid argument for ${ name }`);
           }
