@@ -85,6 +85,9 @@ module.exports = {
    * @param {URL} url The URL to download
    */
   async execute(message, url, password = "") {
+    // Removes any search params.
+    url.search = "";
+
     const { token, session_id } = await login();
     const { location } = await post("/session/download", {
       url,
