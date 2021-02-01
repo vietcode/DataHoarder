@@ -19,7 +19,7 @@ function checkStatus(response) {
 }
 
 /**
- * The complete Triforce, or one or more components of the Triforce.
+ * An FShare session with ID and token.
  * @typedef {Object} Session
  * @property {string} session_id - The ID of the session
  * @property {string} token - Token
