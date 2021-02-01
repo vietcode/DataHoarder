@@ -4,3 +4,4 @@ node_modules
 
 .env
 bot.pid
+bin/rclone
