@@ -27,10 +27,14 @@ module.exports = {
    * @param {URL} url The URL to download
    */
 	async execute(message, url) {
+    message.suppressEmbeds(true);
+
     const { pathname } = url;
     const filename = decodeURIComponent(basename(pathname));
 
-    const reply = await message.reply(`**Filename**: ${ filename }\n**Status**: Pending`);
+    let header = `**File**: ${ filename }`;
+
+    const reply = await message.reply(`${ header }\n**Status**: Pending`);
 
     const response = await fetch(url, {
       method: "get",
@@ -45,13 +49,23 @@ module.exports = {
     const total = Number(response.headers.get("content-length"));
     let done = 0;
 
-    reply.edit(`**Filename**: ${ filename }\n**Status**: ${ progress(done, total)}`);
+    if (total) {
+      header += ` (${ bytes(total) })`;
+    }
+
+    reply.edit(`${ header }\n**Status**: ${ bytes(done) }`);
 
     // Throttle the progress update.
     const throttled = throttle(
       250,
       () => {
-        reply.edit(`**Filename**: ${ filename }\n**Status**: ${ progress(done, total)}`);
+        const now = new Date();
+        const elapsed = (now - startedAt) / 1000;
+        const rate = done / elapsed;
+        const estimated = total / rate;
+        const eta = estimated - elapsed;
+        now.setSeconds(now.getSeconds() + eta);
+        reply.edit(`${ header }\n**Status**: ${ bytes(done) } @ ${bytes(rate)}/s. ETA: ${ now.toLocaleString() }.`);
       },
     );
 
@@ -62,7 +76,7 @@ module.exports = {
     });
 
     response.body.on("end", (chunk) => {
-      reply.edit(`**Filename**: ${ filename }\n**Status**: Finishing last bytes...`);
+      reply.edit(`${ header }\n**Status**: Finishing last bytes...`);
     });
 
     const args = [
@@ -79,23 +93,19 @@ module.exports = {
     });
 
     rcat.stdout.on("end", () => {
-      reply.edit(`**Filename**: ${ filename }\n**Status**: Uploaded.`);
+      reply.edit(`${ header }\n**Status**: Uploaded.`);
     });
 
     response.body.pipe(rcat.stdin);
 	},
 };
 
-function progress(done, total) {
-  return `Downloading ${ formatBytes(done) } of ${ formatBytes(total) }`;
-}
-
 /**
  * Formats bytes into human-readable units.
  * @param {number} bytes The number of bytes
  * @param {number} [decimals=2] Number of decimal points
  */
-function formatBytes(bytes, decimals = 2) {
+function bytes(bytes, decimals = 2) {
   if (bytes === 0) return "0 Bytes";
 
   const k = 1024;
