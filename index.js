@@ -48,7 +48,7 @@ bot.on("message", async message => {
 
     // Validates arguments.
     args.forEach((arg, index) => {
-      const { name, type } = params[index];
+      const { name, type = "text" } = params[index] || {};
 
       switch (type) {
         case "url":
