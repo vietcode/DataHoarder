@@ -2,6 +2,8 @@
 
 A bot for hoarding any data from Discord.
 
+[![Run on Repl.it](https://repl.it/badge/github/vietcode/DataHoarder)](https://repl.it/github/vietcode/DataHoarder)
+
 ## Commands
 
 - `/mirror <url>` - download any URL to a remote destination.
