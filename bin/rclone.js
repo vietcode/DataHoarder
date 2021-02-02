@@ -99,9 +99,11 @@ const command = api[commandName];
 if (command) {
   const process = command(...args);
 
-  process.stdout.on("data", (data) => {
-    console.log(data.toString());
-  });
+  if (COMMANDS.indexOf(commandName) > -1) {
+    process.stdout.on("data", (data) => {
+      console.log(data.toString());
+    });
+  }
 }
 
 module.exports = api;
