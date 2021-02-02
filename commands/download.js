@@ -1,13 +1,10 @@
-const { join, basename, } = require("path");
-const { spawn } = require("child_process");
+const { basename } = require("path");
 
 const Discord = require("discord.js");
 const fetch = require("node-fetch");
 const { throttle } = require("throttle-debounce");
 
-const CWD = process.cwd();
-const RCLONE = join(CWD, "bin", "rclone");
-const CONFIG = join(CWD, "bin", "rclone.conf");
+const rclone = require("../bin/rclone.js");
 
 module.exports = {
   name: "download",
@@ -79,14 +76,7 @@ module.exports = {
       reply.edit(`${ header }\n**Status**: Finishing last bytes...`);
     });
 
-    const args = [
-      "--config",
-      CONFIG,
-      "rcat",
-      `target:${ filename }`,
-    ]
-
-    const rcat = spawn(RCLONE, args,);
+    const rcat = rclone.rcat(`target:${ filename }`);
 
     rcat.stderr.on("data", (data) => {
       console.log(`stderr: ${data}`);
