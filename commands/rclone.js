@@ -3,11 +3,22 @@ const Discord = require("discord.js");
 const rclone = require("../bin/rclone.js");
 
 const COMMANDS = [
+  "about",
+  "check",
+  "cryptcheck",
+  "cryptdecode",
+  "hashsum",
   "ls",
   "lsd",
-  "check",
+  "lsf",
+  "lsjson",
+  "lsl",
+  "md5sum",
+  "sha1sum",
   "size",
-]
+  "tree",
+  "version",
+];
 
 module.exports = {
   name: "rclone",
@@ -33,32 +44,32 @@ module.exports = {
     }
 
     return new Promise((resolve, reject) => {
-      const process = rclone[command](...args);
+      const subprocess = rclone[command](...args);
 
       // Collects both stdout and stderr from rclone to reply with.
       let stdout = "", stderr = "";
-      process.stdout.on("data", (data) => {
+      subprocess.stdout.on("data", (data) => {
         stdout += data;
       });
 
-      process.stdout.on("end", () => {
+      subprocess.stdout.on("end", () => {
         stdout && message.reply(stdout, { split: true });
       });
 
-      process.stderr.on("data", (data) => {
+      subprocess.stderr.on("data", (data) => {
         stderr += data;
       });
 
-      process.stderr.on("end", () => {
+      subprocess.stderr.on("end", () => {
         stderr && message.reply(stderr, { split: true });
       });
 
       // Throws error if there is an issue spawning rclone.
-      process.on("error", (error) => {
+      subprocess.on("error", (error) => {
         reject(new Error(`rclone ${ command } ${args.join(" ") } encountered error ${ error.message }`));
       });
 
-      process.on("exit", resolve);
+      subprocess.on("exit", resolve);
     });
 	},
 };

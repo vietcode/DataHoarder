@@ -4,8 +4,10 @@ const fs = require("fs");
 
 const Discord = require("discord.js");
 
+const rclone = require("./bin/rclone.js");
+
 require("nvar")();
-const { PREFIX = "/", DISCORD_TOKEN } = process.env;
+const { PREFIX = "/", DISCORD_TOKEN, HOSTNAME = "localhost", PORT } = process.env;
 
 const bot = new Discord.Client();
 const commands = bot.commands = new Discord.Collection();
@@ -85,3 +87,16 @@ bot.on("message", async message => {
 });
 
 bot.login(DISCORD_TOKEN);
+
+if (typeof PORT !== "undefined") {
+  // Serving the target remote as index.
+  const server = rclone.serve("http", "target:", "--addr", `${ HOSTNAME }:${ PORT }`);
+
+  server.stdout.on("data", (data) => {
+    console.log(data.toString());
+  });
+
+  server.stderr.on("data", (data) => {
+    console.error(data.toString());
+  });
+}

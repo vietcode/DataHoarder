@@ -3,5 +3,6 @@
 node_modules
 
 .env
+.htpasswd
 bot.pid
 bin/rclone
