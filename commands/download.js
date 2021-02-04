@@ -31,8 +31,6 @@ module.exports = {
    * @param {URL} url The URL to download
    */
 	async execute(message, url) {
-    message.suppressEmbeds(true);
-
     const { pathname } = url;
     const filename = decodeURIComponent(basename(pathname));
 
