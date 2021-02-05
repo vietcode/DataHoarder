@@ -2,6 +2,7 @@
 
 const fs = require("fs");
 
+const debug = require("debug")("bot");
 const shellParser = require("shell-parser");
 const Discord = require("discord.js");
 
@@ -37,6 +38,8 @@ bot.on("message", async message => {
 
   // Parse for arguments, ignoring the first item because it's the command name.
   const [, ...args] = shellParser(message.content);
+
+  debug(`Received command ${ message.content.trim() }`);
 
   const command = commands.get(commandName)
     || commands.find(cmd => cmd.aliases && cmd.aliases.includes(commandName));
