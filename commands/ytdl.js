@@ -56,16 +56,42 @@ module.exports = {
     let [, videoQuality = "highestvideo" ] = filename.match(/\.(4320p|3072p|2160p|1080p|720p|480p|360p|270p|240p|180p|144p)\./) || [];
     // Checks if provided filename indicates request for HDR content.
     const isHDR = filename.indexOf(".HDR.") > -1;
-    videoQuality += isHDR ? " HDR, HFR" : "";
+    videoQuality += isHDR ? " HDR" : "";
 
-    const { audioCodec, contentLength: audioSize } = chooseFormat(formats, {
-      quality: audioQuality,
-      filter: "audioonly",
-    });
-    const { qualityLabel: resolution, videoCodec, contentLength: videoSize } = chooseFormat(formats, {
-      quality: videoQuality,
-      filter: "videoonly",
-    });
+    let audioFormat, videoFormat;
+
+    try {
+      audioFormat = chooseFormat(formats, {
+        // Only want formats with audio only
+        filter: "audioonly",
+        // We just want highest audio quality.
+        quality: audioQuality,
+      });
+    } catch(error) {
+      reply.edit(`${ header }\n**Error**: No such format found: ${ audioQuality }`);
+      return;
+    };
+
+    try {
+      videoFormat = chooseFormat(formats, {
+        // Filters for video formats that match requesting quality.
+        filter: ({ qualityLabel, hasVideo, hasAudio }) => {
+          if (!hasVideo) return false;
+          if (hasAudio) return false;
+          if (videoQuality === "highestvideo") return true;
+
+          return qualityLabel.indexOf(videoQuality) > -1;
+        },
+        // We want higest matching video quality.
+        quality: "highestvideo",
+      });
+    } catch(error) {
+      reply.edit(`${ header }\n**Error**: No such format found: ${ videoQuality }`);
+      return;
+    };
+
+    const { audioCodec, contentLength: audioSize } = audioFormat;
+    const { qualityLabel: resolution, videoCodec, contentLength: videoSize } = videoFormat;
 
     const fileSize = parseInt(audioSize) + parseInt(videoSize);
 
@@ -99,8 +125,8 @@ module.exports = {
         break;
     }
 
-    const audio = downloadFromInfo(info, { quality: audioQuality });
-    const video = downloadFromInfo(info, { quality: videoQuality });
+    const audio = downloadFromInfo(info, { format: audioFormat });
+    const video = downloadFromInfo(info, { format: videoFormat });
 
     const rcat = rclone.rcat(`target:${ filename }`);
 
