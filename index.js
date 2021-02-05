@@ -8,7 +8,7 @@ const Discord = require("discord.js");
 const rclone = require("./bin/rclone.js");
 
 require("nvar")();
-const { PREFIX = "/", DISCORD_TOKEN, HOSTNAME = "localhost", PORT } = process.env;
+const { PREFIX = "/", DISCORD_TOKEN, HOSTNAME = "", PORT } = process.env;
 
 const bot = new Discord.Client();
 const commands = bot.commands = new Discord.Collection();
