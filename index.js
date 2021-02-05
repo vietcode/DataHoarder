@@ -8,7 +8,10 @@ const Discord = require("discord.js");
 const rclone = require("./bin/rclone.js");
 
 require("nvar")();
-const { PREFIX = "/", DISCORD_TOKEN, HOSTNAME = "", PORT } = process.env;
+const { PREFIX = "/", SUFFIX = "", DISCORD_TOKEN, HOSTNAME = "", PORT } = process.env;
+
+// Regex to check if a message contains command.
+const COMMAND_REGEX = new RegExp(`^${ PREFIX}([a-z-]+)${ SUFFIX }\\s+`);
 
 const bot = new Discord.Client();
 const commands = bot.commands = new Discord.Collection();
@@ -29,8 +32,11 @@ bot.on("ready", () => {
 });
 
 bot.on("message", async message => {
-  const args = shellParser(message.content.slice(PREFIX.length));
-  const commandName = args.shift().toLowerCase();
+  const [, commandName] = message.content.trim().match(COMMAND_REGEX) || [];
+  if (!commandName) return;
+
+  // Parse for arguments, ignoring the first item because it's the command name.
+  const [, ...args] = shellParser(message.content);
 
   const command = commands.get(commandName)
     || commands.find(cmd => cmd.aliases && cmd.aliases.includes(commandName));
