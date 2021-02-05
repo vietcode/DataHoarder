@@ -2,6 +2,7 @@
 
 const fs = require("fs");
 
+const shellParser = require("shell-parser");
 const Discord = require("discord.js");
 
 const rclone = require("./bin/rclone.js");
@@ -28,7 +29,7 @@ bot.on("ready", () => {
 });
 
 bot.on("message", async message => {
-  const args = message.content.slice(PREFIX.length).trim().split(/ +/);
+  const args = shellParser(message.content.slice(PREFIX.length));
   const commandName = args.shift().toLowerCase();
 
   const command = commands.get(commandName)
