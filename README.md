@@ -19,7 +19,8 @@ A bot for hoarding any data from Discord.
 - Clone the repo.
 - Create a `.env` file with the following variables:
   - `DISCORD_TOKEN`: The token of the bot retrieved from Discord.
-  - `PREFIX`: (optional) custom prefix for the commands. Default to `/`.
+  - `COMMAND_PREFIX`: (optional) custom prefix for the commands. Default to `/`.
+  - `COMMAND_SUFFIX`: (optional) custom suffix for the commands. Default to empty string.
   - `RCLONE_DRIVE_CLIENT_ID`: (optional) Google's client ID for rclone.
   - `RCLONE_DRIVE_CLIENT_SECRET`: (optional) Google's client secret for rclone.
   - `RCLONE_CONFIG_TARGET_TEAM_DRIVE`: The ID of the shared drive to upload file to.

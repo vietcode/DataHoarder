@@ -9,10 +9,14 @@ const Discord = require("discord.js");
 const rclone = require("./bin/rclone.js");
 
 require("nvar")();
-const { PREFIX = "/", SUFFIX = "", DISCORD_TOKEN, HOSTNAME = "", PORT } = process.env;
+const {
+  COMMAND_PREFIX = "/", COMMAND_SUFFIX = "",
+  DISCORD_TOKEN,
+  HOSTNAME = "", PORT
+} = process.env;
 
 // Regex to check if a message contains command.
-const COMMAND_REGEX = new RegExp(`^${ PREFIX}([a-z-]+)${ SUFFIX }\\s+`);
+const COMMAND_REGEX = new RegExp(`^${ COMMAND_PREFIX }([a-z-]+)${ COMMAND_SUFFIX }\\s+`);
 
 const bot = new Discord.Client();
 const commands = bot.commands = new Discord.Collection();
@@ -83,7 +87,7 @@ bot.on("message", async message => {
     // Replies with error if any.
     if (errors.length) {
       if (command.usage) {
-        errors.push(`Usage: \`${PREFIX}${command.name} ${command.usage}\``);
+        errors.push(`Usage: \`${ COMMAND_PREFIX }${command.name}${ COMMAND_SUFFIX} ${command.usage}\``);
       }
 
       return message.channel.send(errors.join("\n"));
