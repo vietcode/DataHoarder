@@ -11,6 +11,7 @@ const { bytes, progress } = require("../utils.js");
 const {
   RCLONE_CONFIG_TARGET_TEAM_DRIVE,
   RCLONE_CONFIG_TARGET_ROOT_FOLDER_ID,
+  USER_AGENT = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.103 Safari/537.36",
 } = process.env;
 
 const folder = RCLONE_CONFIG_TARGET_ROOT_FOLDER_ID || RCLONE_CONFIG_TARGET_TEAM_DRIVE;
@@ -125,8 +126,22 @@ module.exports = {
         break;
     }
 
-    const audio = downloadFromInfo(info, { format: audioFormat });
-    const video = downloadFromInfo(info, { format: videoFormat });
+    const audio = downloadFromInfo(info, {
+      format: audioFormat,
+      requestOptions: {
+        headers: {
+          "User-Agent": USER_AGENT,
+        },
+      },
+    });
+    const video = downloadFromInfo(info, {
+      format: videoFormat,
+      requestOptions: {
+        headers: {
+          "User-Agent": USER_AGENT,
+        },
+      },
+    });
 
     const rcat = rclone.rcat(`target:${ filename }`);
 
