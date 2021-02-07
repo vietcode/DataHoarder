@@ -9,6 +9,8 @@
   "scripts": {
     "postinstall": "node bin/rclone.js update",
     "start": "node index.js",
+    "discord": "node discord.js",
+    "server": "node server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
