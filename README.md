@@ -30,6 +30,7 @@ A bot for hoarding any data from Discord.
   - `RCLONE_CONFIG_TARGET_SERVICE_ACCOUNT_FILE`: (optional) path to service account file with access to the target folder.
   - `FSHARE_USER_EMAIL`: VIP email to login.
   - `FSHARE_PASSWORD`: VIP password to login.
+  - `COMMAND_MIRROR_ALIASES`: Space-separated list of aliases for `mirror` command.
 - Inside the project, `npm install` to install dependencies.
 - `npm start` to start the bot.
 
