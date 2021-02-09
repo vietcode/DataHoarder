@@ -1,8 +1,12 @@
 const Discord = require("discord.js");
 
+const {
+  COMMAND_MIRROR_ALIASES = "",
+} = process.env;
+
 module.exports = {
   name: "mirror",
-  aliases: [],
+  aliases: COMMAND_MIRROR_ALIASES.split(/\s+/),
   description: "Mirroring a URL",
   guildOnly: true,
   params: [
