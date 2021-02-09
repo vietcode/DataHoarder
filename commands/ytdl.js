@@ -5,8 +5,7 @@ const Discord = require("discord.js");
 const { getInfo, chooseFormat, downloadFromInfo } = require("ytdl-core");
 const ffmpeg = require("@ffmpeg-installer/ffmpeg");
 
-const rclone = require("../bin/rclone.js");
-const { bytes, progress } = require("../utils.js");
+const { bytes, progress, rcat } = require("../utils.js");
 
 const {
   RCLONE_CONFIG_TARGET_TEAM_DRIVE,
@@ -143,37 +142,6 @@ module.exports = {
       },
     });
 
-    const rcat = rclone.rcat(`target:${ filename }`);
-
-    rcat.stderr.on("data", (data) => {
-      console.log(`stderr: ${ data }`);
-    });
-
-    rcat.stdout.on("end", () => {
-      // Retrieves ID of the new file.
-      const lsf = rclone.lsf(`target:${ filename }`, "--format", "i");
-      let id = "";
-
-      lsf.stdout.on("data", data => {
-        id += data;
-      });
-
-      lsf.stdout.on("end", () => {
-        const author = message.author;
-
-        const downloadEmbed = new Discord.MessageEmbed()
-          .setTitle(filename)
-          .setURL(`https://drive.google.com/file/d/${ id.trim() }`)
-          .setAuthor(author.username, author.displayAvatarURL())
-          .setDescription(`Size: ${ bytes(fileSize) }\n[Folder](https://drive.google.com/drive/folders/${ folder })`)
-          .setTimestamp();
-
-        reply.edit(`File uploaded:`, {
-          embed: downloadEmbed,
-        });
-      });
-    });
-
     const ffmpegProcess = spawn(ffmpeg.path, [
       // Remove ffmpeg's console spamming
       "-loglevel", "8", "-hide_banner",
@@ -197,15 +165,33 @@ module.exports = {
       ],
     });
 
-    progress(ffmpegProcess.stdio[5], {
+    const stdout = ffmpegProcess.stdio[5];
+
+    progress(stdout, {
       delay: 1000,
       total: fileSize,
     }).on("progress", ({ doneh, rateh, etaDate }) => {
       reply.edit(`${ header }\n**Status**: ${ doneh } @ ${ rateh }/s. ETA: ${ etaDate.toLocaleString() }.`);
     });
 
+    const promise = rcat(stdout, `target:${ filename }`);
+
     audio.pipe(ffmpegProcess.stdio[3]);
     video.pipe(ffmpegProcess.stdio[4]);
-    ffmpegProcess.stdio[5].pipe(rcat.stdin);
+
+    const fileId = await promise;
+    const author = message.author;
+    const downloadEmbed = new Discord.MessageEmbed()
+      .setTitle(filename)
+      .setURL(`https://drive.google.com/file/d/${ fileId.trim() }`)
+      .setAuthor(author.username, author.displayAvatarURL())
+      .setDescription(`Size: ${ bytes(fileSize) }\n[Folder](https://drive.google.com/drive/folders/${ folder })`)
+      .setTimestamp();
+
+    reply.edit(`File uploaded:`, {
+      embed: downloadEmbed,
+    });
+
+    return reply;
 	},
 };

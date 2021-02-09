@@ -18,8 +18,6 @@ module.exports = {
    * @param {URL} url The URL to download
    */
 	async execute(message, url, ...args) {
-    message.suppressEmbeds(true);
-
     const commands = /** @type { Discord.Collection } */(message.client.commands);
     const { host } = url;
 

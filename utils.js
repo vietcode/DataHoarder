@@ -1,5 +1,7 @@
 const { throttle } = require("throttle-debounce");
 
+const rclone = require("./bin/rclone.js");
+
 /**
  * Formats bytes into human-readable units.
  * @param {number} bytes The number of bytes
@@ -72,8 +74,41 @@ function progress(stream, { delay = 0, total } = {}) {
   return stream;
 }
 
+/**
+ * Perform a `rclone rcat` from a stream to a file.
+ * @param {ReadableStream} stream
+ * @param {string} filename The file name to store
+ */
+function rcat(stream, filename) {
+  return new Promise((resolve, reject) => {
+    const rcat = rclone.rcat(filename);
+
+    rcat.stderr.on("data", (data) => {
+      console.log(`stderr: ${ data }`);
+      reject(data.toString());
+    });
+
+    rcat.stdout.on("end", () => {
+      // Retrieves ID of the new file.
+      const lsf = rclone.lsf(filename, "--format", "i");
+      let fileId = "";
+
+      lsf.stdout.on("data", data => {
+        fileId += data;
+      });
+
+      lsf.stdout.on("end", () => {
+        resolve(fileId.trim());
+      });
+    });
+
+    stream.pipe(rcat.stdin);
+  });
+}
+
 module.exports = {
   throttle,
   bytes,
   progress,
+  rcat,
 };

@@ -3,8 +3,7 @@ const { basename } = require("path");
 const Discord = require("discord.js");
 const fetch = require("node-fetch");
 
-const rclone = require("../bin/rclone.js");
-const { bytes, progress } = require("../utils.js");
+const { bytes, progress, rcat } = require("../utils.js");
 
 const {
   RCLONE_CONFIG_TARGET_TEAM_DRIVE,
@@ -66,37 +65,19 @@ module.exports = {
       reply.edit(`${ header }\n**Status**: Finishing last bytes...`);
     });
 
-    const rcat = rclone.rcat(`target:${ filename }`);
+    const fileId = await rcat(response.body, `target:${ filename }`);
+    const author = message.author;
+    const downloadEmbed = new Discord.MessageEmbed()
+      .setTitle(filename)
+      .setURL(`https://drive.google.com/file/d/${ fileId }`)
+      .setAuthor(author.username, author.displayAvatarURL())
+      .setDescription(`Size: ${ bytes(fileSize) }\n[Folder](https://drive.google.com/drive/folders/${ folder })`)
+      .setTimestamp();
 
-    rcat.stderr.on("data", (data) => {
-      console.log(`stderr: ${ data }`);
+    reply.edit(`File uploaded:`, {
+      embed: downloadEmbed,
     });
 
-    rcat.stdout.on("end", () => {
-      // Retrieves ID of the new file.
-      const lsf = rclone.lsf(`target:${ filename }`, "--format", "i");
-      let id = "";
-
-      lsf.stdout.on("data", data => {
-        id += data;
-      });
-
-      lsf.stdout.on("end", () => {
-        const author = message.author;
-
-        const downloadEmbed = new Discord.MessageEmbed()
-          .setTitle(filename)
-          .setURL(`https://drive.google.com/file/d/${ id.trim() }`)
-          .setAuthor(author.username, author.displayAvatarURL())
-          .setDescription(`Size: ${ bytes(fileSize) }\n[Folder](https://drive.google.com/drive/folders/${ folder })`)
-          .setTimestamp();
-
-        reply.edit(`File uploaded:`, {
-          embed: downloadEmbed,
-        });
-      });
-    });
-
-    response.body.pipe(rcat.stdin);
+    return reply;
 	},
 };
