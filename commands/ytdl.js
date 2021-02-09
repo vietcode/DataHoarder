@@ -180,17 +180,7 @@ module.exports = {
     video.pipe(ffmpegProcess.stdio[4]);
 
     const fileId = await promise;
-    const author = message.author;
-    const downloadEmbed = new Discord.MessageEmbed()
-      .setTitle(filename)
-      .setURL(`https://drive.google.com/file/d/${ fileId.trim() }`)
-      .setAuthor(author.username, author.displayAvatarURL())
-      .setDescription(`Size: ${ bytes(fileSize) }\n[Folder](https://drive.google.com/drive/folders/${ folder })`)
-      .setTimestamp();
-
-    reply.edit(`File uploaded:`, {
-      embed: downloadEmbed,
-    });
+    reply.edit(`${ header }\nhttps://drive.google.com/file/d/${ fileId }`);
 
     return reply;
 	},

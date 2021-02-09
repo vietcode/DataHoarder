@@ -66,17 +66,7 @@ module.exports = {
     });
 
     const fileId = await rcat(response.body, `target:${ filename }`);
-    const author = message.author;
-    const downloadEmbed = new Discord.MessageEmbed()
-      .setTitle(filename)
-      .setURL(`https://drive.google.com/file/d/${ fileId }`)
-      .setAuthor(author.username, author.displayAvatarURL())
-      .setDescription(`Size: ${ bytes(fileSize) }\n[Folder](https://drive.google.com/drive/folders/${ folder })`)
-      .setTimestamp();
-
-    reply.edit(`File uploaded:`, {
-      embed: downloadEmbed,
-    });
+    reply.edit(`${ header }\nhttps://drive.google.com/file/d/${ fileId }`);
 
     return reply;
 	},
