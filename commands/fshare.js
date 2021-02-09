@@ -10,11 +10,12 @@ const {
 const API_URL = "https://api.fshare.vn/api";
 const USER_AGENT = "Fshare/1 CFNetwork/1209 Darwin/20.2.0";
 
-function checkStatus(response) {
+async function checkStatus(response) {
   if (response.ok) { // response.status >= 200 && response.status < 300
     return response;
   } else {
-    throw Error(response.statusText);
+    const { msg } = await response.json();
+    throw Error(msg);
   }
 }
 
