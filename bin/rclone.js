@@ -3,6 +3,8 @@
 const { join } = require("path");
 const { spawn, ChildProcess } = require("child_process");
 
+require("nvar")();
+
 let { platform, arch } = process;
 
 switch (platform) {
