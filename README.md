@@ -7,9 +7,9 @@ A bot for hoarding any data from Discord.
 
 ## Commands
 
-- `/mirror <url>` - download any URL to a remote destination.
-- `/download <url>` - mirror a direct link.
-- `/fshare <url>` - mirror a file on Fshare.vn.
+- `/mirror <url> [destpath]` - download any URL to a remote destination.
+- `/download <url> [destpath]` - mirror a direct link.
+- `/fshare <url> [destpath]` - mirror a file on Fshare.vn.
 - `/ytdl <url>` - mirror a YouTube video.
 
 ## Getting Started
@@ -30,7 +30,8 @@ A bot for hoarding any data from Discord.
   - `RCLONE_CONFIG_TARGET_SERVICE_ACCOUNT_FILE`: (optional) path to service account file with access to the target folder.
   - `FSHARE_USER_EMAIL`: VIP email to login.
   - `FSHARE_PASSWORD`: VIP password to login.
-  - `COMMAND_MIRROR_ALIASES`: Space-separated list of aliases for `mirror` command.
+  - `COMMAND_MIRROR_ALIASES`: (optional) Space-separated list of aliases for `mirror` command.
+  - `MAX_JOBS`: (optional) maximum number of jobs to run in parallel. Default to 4.
 - Inside the project, `npm install` to install dependencies.
 - `npm start` to start the bot.
 
