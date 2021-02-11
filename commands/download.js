@@ -1,4 +1,4 @@
-const { basename } = require("path");
+const { basename, extname, join } = require("path");
 
 const Discord = require("discord.js");
 const fetch = require("node-fetch");
@@ -15,25 +15,36 @@ const folder = RCLONE_CONFIG_TARGET_ROOT_FOLDER_ID || RCLONE_CONFIG_TARGET_TEAM_
 module.exports = {
   name: "download",
   aliases: [],
-  description: "Downloads a file at an URL to a Google Drive folder",
+  description: "Downloads a file at an URL to a Google Drive location",
   guildOnly: true,
   params: [
     {
       name: "url",
       type: "url",
     },
+    {
+      name: "destpath",
+      type: "text",
+    },
   ],
-  usage: "<url>",
+  usage: "<url> [destpath]",
   /**
    * Downloads a link to a Google Drive folder
    * @param {Discord.Message} message - The incoming chat message.
    * @param {URL} url The URL to download
+   * @param {string} [destpath] Path to Google Drive to save file to.
    */
-	async execute(message, url) {
-    const { pathname } = url;
-    const filename = decodeURIComponent(basename(pathname));
+	async execute(message, url, destpath = basename(url.pathname)) {
+    let remote = "target";
 
-    let header = `**File**: ${ filename }`;
+    // If `destpath` is a folder, append the filename from URL.
+    if (!extname(destpath)) {
+      destpath = join(destpath, basename(url.pathname));
+    }
+
+    destpath = decodeURIComponent(destpath);
+
+    let header = `**File**: ${ destpath }`;
 
     const reply = await message.reply(`${ header }\n**Status**: Pending`);
 
@@ -65,7 +76,7 @@ module.exports = {
       reply.edit(`${ header }\n**Status**: Finishing last bytes...`);
     });
 
-    const fileId = await rcat(response.body, `target:${ filename }`);
+    const fileId = await rcat(response.body, `${ remote }:${ destpath }`);
     reply.edit(`${ header }\nhttps://drive.google.com/file/d/${ fileId }`);
 
     return reply;
