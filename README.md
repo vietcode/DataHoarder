@@ -11,6 +11,7 @@ A bot for hoarding any data from Discord.
 - `/download <url> [destpath]` - mirror a direct link.
 - `/fshare <url> [destpath]` - mirror a file on Fshare.vn.
 - `/ytdl <url>` - mirror a YouTube video.
+- `/list <query>` - search for files matching the query.
 
 ## Getting Started
 

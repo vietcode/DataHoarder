@@ -45,6 +45,8 @@ module.exports = {
     }
 
     return new Promise((resolve, reject) => {
+      debug(`rclone ${ command } ${ args.join(" ") }`);
+
       const subprocess = rclone[command](...args);
 
       // Collects both stdout and stderr from rclone to reply with.
