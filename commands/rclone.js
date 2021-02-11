@@ -1,3 +1,4 @@
+const debug = require("debug")("hoarder:rclone");
 const Discord = require("discord.js");
 
 const rclone = require("../bin/rclone.js");

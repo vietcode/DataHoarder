@@ -1,3 +1,4 @@
+const debug = require("debug")("hoarder:fshare");
 const Discord = require("discord.js");
 const fetch = require("node-fetch");
 
@@ -90,7 +91,9 @@ module.exports = {
     // Removes any search params.
     url.search = "";
 
+    debug("Logging in...");
     const { token, session_id } = await login();
+    debug(`Retrieving download link for ${ url }`);
     const { location } = await post("/session/download", {
       url,
       token,
@@ -100,6 +103,7 @@ module.exports = {
       "Cookie": `session_id=${ session_id }`,
     });
 
+    debug(`Downloading ${ location }`);
     const commands = /** @type { Discord.Collection } */(message.client.commands);
     return commands.get("download").execute(message, new URL(location), destpath);
   },

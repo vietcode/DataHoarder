@@ -1,3 +1,4 @@
+const debug = require("debug")("hoarder:mirror");
 const Discord = require("discord.js");
 
 const {

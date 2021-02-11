@@ -2,7 +2,7 @@
 
 const fs = require("fs");
 
-const debug = require("debug")("bot");
+const debug = require("debug")("hoarder:discord");
 const shellParser = require("shell-parser");
 const Discord = require("discord.js");
 const Queue = require("fastq");
@@ -31,7 +31,7 @@ for (const file of commandFiles) {
 	commands.set(command.name, command);
 }
 
-const jobs = Queue(worker, MAX_JOBS);
+const jobs = Queue(worker, parseInt(MAX_JOBS));
 
 client.on("ready", () => {
   console.log(`Logged in as ${client.user.tag}!`);

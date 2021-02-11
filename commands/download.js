@@ -1,5 +1,6 @@
 const { basename, extname, join } = require("path");
 
+const debug = require("debug")("hoarder:download");
 const Discord = require("discord.js");
 const fetch = require("node-fetch");
 
@@ -43,6 +44,8 @@ module.exports = {
     }
 
     destpath = decodeURIComponent(destpath);
+
+    debug(`download ${ url } ${ destpath }`);
 
     let header = `**File**: ${ destpath }`;
 

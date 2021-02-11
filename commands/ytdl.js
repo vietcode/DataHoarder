@@ -1,6 +1,7 @@
 const { extname } = require("path");
 const { spawn, ChildProcess } = require("child_process");
 
+const debug = require("debug")("hoarder:ytdl");
 const Discord = require("discord.js");
 const { getInfo, chooseFormat, downloadFromInfo } = require("ytdl-core");
 const ffmpeg = require("@ffmpeg-installer/ffmpeg");
@@ -40,6 +41,7 @@ module.exports = {
     let header = `**File**: ${ filename }`;
     const reply = await message.reply(`${ header }\n**Status**: Pending`);
 
+    debug(`Retrieving infomation for ${ url }`);
     const info = await getInfo(url);
 
     const {
@@ -108,6 +110,8 @@ module.exports = {
       ].filter(Boolean).join(".");
     }
 
+    debug(`Downloading audio and video for ${ videoId }`);
+
     header = `**File**: ${ filename } (${ bytes(fileSize) })`;
     reply.edit(`${ header }\n**Status**: Downloading...`);
 
@@ -132,6 +136,8 @@ module.exports = {
           "User-Agent": USER_AGENT,
         },
       },
+    }).on("end", () => {
+      debug(`Finished downloading audio for ${ videoId }`);
     });
     const video = downloadFromInfo(info, {
       format: videoFormat,
@@ -140,6 +146,8 @@ module.exports = {
           "User-Agent": USER_AGENT,
         },
       },
+    }).on("end", () => {
+      debug(`Finished downloading video for ${ videoId }`);
     });
 
     const ffmpegProcess = spawn(ffmpeg.path, [
@@ -166,6 +174,9 @@ module.exports = {
     });
 
     const stdout = ffmpegProcess.stdio[5];
+    stdout.on("end", () => {
+      debug(`Finished remuxing video and audio into a container for ${ videoId }`);
+    });
 
     progress(stdout, {
       delay: 1000,
@@ -180,6 +191,7 @@ module.exports = {
     video.pipe(ffmpegProcess.stdio[4]);
 
     const fileId = await promise;
+    debug(`Finished uploading ${ filename }`);
     reply.edit(`${ header }\nhttps://drive.google.com/file/d/${ fileId }`);
 
     return reply;
