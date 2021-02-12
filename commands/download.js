@@ -31,11 +31,11 @@ module.exports = {
   usage: "<url> [destpath]",
   /**
    * Downloads a link to a Google Drive folder
-   * @param {Discord.Message} message - The incoming chat message.
+   * @param {Discord.Message} reply - The reply message.
    * @param {URL} url The URL to download
    * @param {string} [destpath] Path to Google Drive to save file to.
    */
-	async execute(message, url, destpath = basename(url.pathname)) {
+	async execute(reply, url, destpath = basename(url.pathname)) {
     let remote = "target";
 
     // If `destpath` is a folder, append the filename from URL.
@@ -49,7 +49,7 @@ module.exports = {
 
     let header = `**File**: ${ destpath }`;
 
-    const reply = await message.reply(`${ header }\n**Status**: Pending`);
+   reply.edit(`${ header }\n**Status**: Pending`);
 
     const response = await fetch(url, {
       method: "get",
@@ -81,7 +81,5 @@ module.exports = {
 
     const fileId = await rcat(response.body, `${ remote }:${ destpath }`);
     reply.edit(`${ header }\nhttps://drive.google.com/file/d/${ fileId }`);
-
-    return reply;
 	},
 };

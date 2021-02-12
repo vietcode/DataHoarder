@@ -83,11 +83,11 @@ module.exports = {
   usage: "<folder/file link> [destpath]",
   /**
    * Downloads an FShare link
-   * @param {Discord.Message} message - The incoming chat message.
+   * @param {Discord.Message} reply - The reply message.
    * @param {URL} url The URL to download
    * @param {string} [destpath] Path to Google Drive to save file to.
    */
-  async execute(message, url, destpath = "") {
+  async execute(reply, url, destpath = "") {
     // Removes any search params.
     url.search = "";
 
@@ -104,7 +104,7 @@ module.exports = {
     });
 
     debug(`Downloading ${ location }`);
-    const commands = /** @type { Discord.Collection } */(message.client.commands);
-    return commands.get("download").execute(message, new URL(location), destpath);
+    const commands = /** @type { Discord.Collection } */(reply.client.commands);
+    return commands.get("download").execute(reply, new URL(location), destpath);
   },
 };

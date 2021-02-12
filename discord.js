@@ -105,11 +105,13 @@ client.on("message", async message => {
 
   // Acknowledge request received.
   const reaction = await message.react("🕐");
+  const reply = await message.reply("Status: In Queued");
 
   // Push request into our job queue.
-  jobs.push({ message, command, args, reaction, }, (error, reply) => {
+  // We only push the reply object so each command can update it if need to.
+  jobs.push({ reply, command, args, reaction, }, (error, reply) => {
     if (error) {
-      message.reply(error.message);
+      reply.edit(`Status: Error - ${ error.message }`);
       return;
     }
   });
@@ -118,11 +120,12 @@ client.on("message", async message => {
 client.login(DISCORD_TOKEN);
 
 // A simple worker that is run for each job.
-async function worker({ message, command, args, reaction }, cb) {
+async function worker({ reply, command, args, reaction }, cb) {
   try {
     // Removes the reaction to indicate the request being started.
-    await reaction.remove();
-    const reply = await command.execute(message, ...args);
+    reply.edit("Status: Starting");
+    reaction.remove();
+    await command.execute(reply, ...args);
     cb(null, reply);
   } catch(error) {
     cb(error);

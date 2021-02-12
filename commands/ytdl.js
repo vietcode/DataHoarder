@@ -34,12 +34,12 @@ module.exports = {
   usage: "<url>",
   /**
    * Handles the mirror request
-   * @param {Discord.Message} message - The incoming chat message.
+   * @param {Discord.Message} reply - The reply message.
    * @param {URL} url The URL to download
    */
-	async execute(message, url, filename = "") {
+	async execute(reply, url, filename = "") {
     let header = `**File**: ${ filename }`;
-    const reply = await message.reply(`${ header }\n**Status**: Pending`);
+    reply.edit(`${ header }\n**Status**: Pending`);
 
     debug(`Retrieving infomation for ${ url }`);
     const info = await getInfo(url);
@@ -193,7 +193,5 @@ module.exports = {
     const fileId = await promise;
     debug(`Finished uploading ${ filename }`);
     reply.edit(`${ header }\nhttps://drive.google.com/file/d/${ fileId }`);
-
-    return reply;
 	},
 };
