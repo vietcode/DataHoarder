@@ -16,6 +16,14 @@ module.exports = {
    */
 	async execute(message, query = "") {
     const commands = /** @type { Discord.Collection } */(message.client.commands);
-    return commands.get("rclone").execute(message, "ls", "target:", "--ignore-case", "--include", `**${ query }**`);
+    const args = [
+      "lsf",
+      "--separator", " | ", "--files-only", "--format", "tsp",
+      "--ignore-case",
+      "--include", `**${ query }**`,
+      "target:"
+    ];
+
+    return commands.get("rclone").execute(message, ...args);
   },
 };
