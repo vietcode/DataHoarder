@@ -18,7 +18,9 @@ module.exports = {
     const commands = /** @type { Discord.Collection } */(message.client.commands);
     const args = [
       "lsf",
-      "--separator", " | ", "--files-only", "--format", "tsp",
+      "--separator", " | ",
+      "-R", "--files-only",
+      "--format", "tsp",
       "--ignore-case",
       "--include", `**${ query }**`,
       "target:"
