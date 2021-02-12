@@ -25,6 +25,7 @@ module.exports = {
   name: "rclone",
   aliases: [],
   description: "Executes rclone commands",
+  async: true,
   params: [
     {
       name: "command",

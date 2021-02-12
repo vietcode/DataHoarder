@@ -2,6 +2,7 @@ module.exports = {
   name: "list",
   aliases: [],
   description: "List files based on a query",
+  async: true,
   params: [
     {
       name: "query",

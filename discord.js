@@ -97,6 +97,12 @@ client.on("message", async message => {
     return message.channel.send(errors.join("\n"));
   }
 
+  // For async commands, we execute them without adding to queue.
+  if (command.async) {
+    await command.execute(message, ...args);
+    return;
+  }
+
   // Acknowledge request received.
   const reaction = await message.react("🕐");
 
