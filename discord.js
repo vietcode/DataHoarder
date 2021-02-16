@@ -4,7 +4,7 @@ const fs = require("fs");
 
 const debug = require("debug")("hoarder:discord");
 const shellParser = require("shell-parser");
-const Discord = require("discord.js");
+const { Client, Intents, Collection } = require("discord.js");
 const Queue = require("fastq");
 
 require("nvar")();
@@ -17,8 +17,16 @@ const {
 // Regex to check if a message contains command.
 const COMMAND_REGEX = new RegExp(`^${ COMMAND_PREFIX }([a-z-]+)${ COMMAND_SUFFIX }\\s+`);
 
-const client = new Discord.Client();
-const commands = client.commands = new Discord.Collection();
+const client = new Client({
+  intents: [
+    Intents.FLAGS.GUILDS,
+    Intents.FLAGS.GUILD_MESSAGES,
+    Intents.FLAGS.GUILD_MESSAGE_REACTIONS,
+    Intents.FLAGS.DIRECT_MESSAGES,
+    Intents.FLAGS.DIRECT_MESSAGE_REACTIONS,
+  ],
+});
+const commands = client.commands = new Collection();
 
 const commandFiles = fs.readdirSync("./commands").filter(file => file.endsWith(".js"));
 
