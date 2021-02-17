@@ -107,7 +107,8 @@ client.on("message", async message => {
 
   // For async commands, we execute them without adding to queue.
   if (command.async) {
-    await command.execute(message, ...args);
+    const reply = await message.reply("Status: Executing");
+    await command.execute(reply, ...args);
     return;
   }
 

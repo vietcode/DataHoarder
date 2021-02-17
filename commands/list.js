@@ -12,11 +12,11 @@ module.exports = {
   usage: "<query>",
   /**
    * List files matching a query
-   * @param {Discord.Message} message - The incoming chat message.
+   * @param {Discord.Message} reply - The reply message.
    * @param {string} query The query text to search for
    */
-	async execute(message, query = "") {
-    const commands = /** @type { Discord.Collection } */(message.client.commands);
+	async execute(reply, query = "") {
+    const commands = /** @type { Discord.Collection } */(reply.client.commands);
     const args = [
       "lsf",
       "--separator", " | ",
@@ -27,6 +27,6 @@ module.exports = {
       "target:"
     ];
 
-    return commands.get("rclone").execute(message, ...args);
+    return commands.get("rclone").execute(reply, ...args);
   },
 };

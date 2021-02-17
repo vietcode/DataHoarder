@@ -35,13 +35,13 @@ module.exports = {
   usage: "<command> [arg...]",
   /**
    * Executes rclone commands
-   * @param {Discord.Message} message - The incoming chat message.
+   * @param {Discord.Message} reply - The reply message.
    * @param {string} command the command to execute.
    */
-	async execute(message, command, ...args) {
+	async execute(reply, command, ...args) {
     // Only support a few commands over chat.
     if (COMMANDS.indexOf(command) === -1) {
-      message.reply("Can't execute that command.");
+      reply.edit("Can't execute that command.");
       return;
     }
 
@@ -57,7 +57,11 @@ module.exports = {
       });
 
       subprocess.stdout.on("end", () => {
-        stdout && message.reply(stdout, { split: true });
+        stdout = stdout.substring(1, 1998);
+        if (stdout.length === 1997) {
+          stdout += "...";
+        }
+        stdout && reply.edit(stdout);
       });
 
       subprocess.stderr.on("data", (data) => {
@@ -65,7 +69,11 @@ module.exports = {
       });
 
       subprocess.stderr.on("end", () => {
-        stderr && message.reply(stderr, { split: true });
+        stderr = stderr.substring(1, 1998);
+        if (stderr.length === 1997) {
+          stderr += "...";
+        }
+        stderr && reply.edit(stderr);
       });
 
       // Throws error if there is an issue spawning rclone.
