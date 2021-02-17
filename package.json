@@ -7,10 +7,11 @@
     "rclone": "./bin/rclone.js"
   },
   "scripts": {
-    "postinstall": "node bin/rclone.js update",
+    "postinstall": "npm run rclone update",
     "start": "node index.js",
     "discord": "node discord.js",
     "server": "node server.js",
+    "rclone": "node bin/rclone.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
