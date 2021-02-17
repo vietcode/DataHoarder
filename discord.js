@@ -61,7 +61,7 @@ client.on("message", async message => {
 
   if (!command) return;
 
-  await message.suppressEmbeds(true);
+  message.suppressEmbeds(true);
 
   if (command.guildOnly && message.channel.type === "dm") {
     return message.reply(`I can't execute that command inside DMs!`);
@@ -113,12 +113,11 @@ client.on("message", async message => {
   }
 
   // Acknowledge request received.
-  const reaction = await message.react("🕐");
   const reply = await message.reply("Status: In Queued");
 
   // Push request into our job queue.
   // We only push the reply object so each command can update it if need to.
-  jobs.push({ reply, command, args, reaction, }, (error, reply) => {
+  jobs.push({ reply, command, args, }, (error, reply) => {
     if (error) {
       reply.edit(`Status: Error - ${ error.message }`);
       return;
@@ -129,11 +128,10 @@ client.on("message", async message => {
 client.login(DISCORD_TOKEN);
 
 // A simple worker that is run for each job.
-async function worker({ reply, command, args, reaction }, cb) {
+async function worker({ reply, command, args, }, cb) {
   try {
     // Removes the reaction to indicate the request being started.
     reply.edit("Status: Starting");
-    reaction.remove();
     await command.execute(reply, ...args);
     cb(null, reply);
   } catch(error) {
