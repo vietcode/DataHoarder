@@ -33,5 +33,11 @@
     "throttle-debounce": "^3.0.1",
     "ytdl-core": "^4.4.5"
   },
-  "devDependencies": {}
+  "devDependencies": {},
+  "optionalDependencies": {
+    "bufferutil": "^4.0.3",
+    "erlpack": "github:discord/erlpack",
+    "utf-8-validate": "^5.0.4",
+    "zlib-sync": "^0.1.7"
+  }
 }
