@@ -137,6 +137,6 @@ async function worker({ reply, command, args, reaction }, cb) {
     await command.execute(reply, ...args);
     cb(null, reply);
   } catch(error) {
-    cb(error);
+    cb(error, reply);
   }
 }
