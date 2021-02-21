@@ -41,6 +41,7 @@ module.exports = {
 	async execute(reply, command, ...args) {
     // Only support a few commands over chat.
     if (COMMANDS.indexOf(command) === -1) {
+      debug(`Attempted rclone ${ command } ${ args.join(" ") }`);
       reply.edit("Can't execute that command.");
       return;
     }
@@ -56,16 +57,16 @@ module.exports = {
         stdout += data;
       });
 
+      subprocess.stderr.on("data", (data) => {
+        stderr += data;
+      });
+
       subprocess.stdout.on("end", () => {
         stdout = stdout.substring(1, 1998);
         if (stdout.length === 1997) {
           stdout += "...";
         }
         stdout && reply.edit(stdout);
-      });
-
-      subprocess.stderr.on("data", (data) => {
-        stderr += data;
       });
 
       subprocess.stderr.on("end", () => {
@@ -78,7 +79,7 @@ module.exports = {
 
       // Throws error if there is an issue spawning rclone.
       subprocess.on("error", (error) => {
-        reject(new Error(`rclone ${ command } ${args.join(" ") } encountered error ${ error.message }`));
+        reject(new Error(`rclone ${ command } ${ args.join(" ") } encountered error ${ error.message }`));
       });
 
       subprocess.on("exit", resolve);

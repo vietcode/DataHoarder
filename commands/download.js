@@ -49,7 +49,7 @@ module.exports = {
 
     let header = `**File**: ${ destpath }`;
 
-   reply.edit(`${ header }\n**Status**: Pending`);
+    reply.edit(`${ header }\n**Status**: Pending`);
 
     const response = await fetch(url, {
       method: "get",
@@ -73,6 +73,10 @@ module.exports = {
       total: fileSize,
     }).on("progress", ({ doneh, rateh, etaDate }) => {
       reply.edit(`${ header }\n**Status**: ${ doneh } @ ${ rateh }/s. ETA: ${ etaDate.toLocaleString() }.`);
+    });
+
+    response.body.on("error", (error) => {
+      throw error;
     });
 
     response.body.on("end", () => {

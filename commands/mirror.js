@@ -30,6 +30,8 @@ module.exports = {
       return commands.get("fshare").execute(reply, url, ...args);
     } else if (/(www\.)?(youtu\.be|youtube\.com)/.test(host)) {
       return commands.get("ytdl").execute(reply, url, ...args);
+    } else if (/drive\.google\.com/.test(host)) {
+      return commands.get("gdrive").execute(reply, url, ...args);
     } else {
       // Direct links.
       return commands.get("download").execute(reply, url, ...args);
