@@ -36,9 +36,7 @@ module.exports = {
 
     debug(`Copy ${ type }/${ id }`);
 
-    let header = `**File**: ${ destpath }`;
-
-    reply.edit(`${ header }\n**Status**: Pending`);
+    reply.edit(`**Status**: Pending`);
 
     const args = [];
     if (type === "file") {
@@ -48,14 +46,22 @@ module.exports = {
       process.env.RCLONE_CONFIG_SOURCE_ROOT_FOLDER_ID = id;
     }
 
-    args.push("--stats-one-line", "-P", "--stats", "1s");
+    args.push("--stats-one-line", "-P", "--stats", "2s");
 
     debug(`rclone ${ args.join(" ") }`);
 
     return new Promise((resolve, reject) => {
       const subprocess = rclone(...args);
+      let status = "";
+
       subprocess.stdout.on("data", (data) => {
-        reply.edit(`${ header }\n**Status**: ${ data }`);
+        status += data;
+        // Truncate to the last 1997 characters.
+        status = status.substring(status.length - 1997);
+        if (status.length === 1997) {
+          status = "..." + status;
+        }
+        reply.edit(`${ status }`);
       });
 
       // Throws error if there is an issue spawning rclone.
