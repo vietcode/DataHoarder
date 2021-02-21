@@ -42,10 +42,20 @@ const RCLONE_DIR = join(CWD, "bin");
 const RCLONE = join(RCLONE_DIR, `rclone${ platform === "windows"? ".exe" : "" }`);
 const CONFIG = join(RCLONE_DIR, "rclone.conf");
 
+const api = function() {
+  const args = [
+    "--config",
+    CONFIG,
+    ...arguments,
+  ];
+
+  return spawn(RCLONE, args);
+}
+
 /**
  * Updates rclone binary based on current OS.
  */
-async function update() {
+api.update = async function() {
   const { chmodSync } = require("fs");
 
   const fetch = require("node-fetch");
@@ -72,10 +82,6 @@ async function update() {
       }
     });
   });
-}
-
-const api = {
-  update,
 }
 
 const COMMANDS = [
@@ -148,16 +154,9 @@ const COMMANDS = [
   "version", // Show the version number.
 ];
 
-COMMANDS.forEach(command => {
-  api[command] = function() {
-    const args = [
-      "--config",
-      CONFIG,
-      command,
-      ...arguments,
-    ];
-
-    return spawn(RCLONE, args);
+COMMANDS.forEach(commandName => {
+  api[commandName] = function() {
+    return api(commandName, ...arguments);
   }
 });
 
