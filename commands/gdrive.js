@@ -69,7 +69,10 @@ module.exports = {
         reject(new Error(`rclone ${ command } ${ args.join(" ") } encountered error ${ error.message }`));
       });
 
-      subprocess.on("exit", resolve);
+      subprocess.on("exit", () => {
+        debug(`rclone exited`);
+        resolve();
+      });
     });
 
   }
