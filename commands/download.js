@@ -3,6 +3,7 @@ const { basename, extname, join } = require("path");
 const debug = require("debug")("hoarder:download");
 const Discord = require("discord.js");
 const fetch = require("node-fetch");
+const ps = require("ps-node");
 
 const { bytes, progress, rcat } = require("../utils.js");
 
@@ -12,6 +13,15 @@ const {
 } = process.env;
 
 const folder = RCLONE_CONFIG_TARGET_ROOT_FOLDER_ID || RCLONE_CONFIG_TARGET_TEAM_DRIVE;
+
+async function editReply(reply, content) {
+  if (reply.deleted) return;
+
+  return reply.edit(content).catch(error => {
+    // Reply was deleted but request was still in progress.
+    // @TODO: Ignore only when it's a unknown message error.
+  });
+}
 
 module.exports = {
   name: "download",
@@ -36,6 +46,8 @@ module.exports = {
    * @param {string} [destpath] Path to Google Drive to save file to.
    */
 	async execute(reply, url, destpath = basename(url.pathname)) {
+    const { client, referencedMessage } = reply;
+
     let remote = "target";
 
     // If `destpath` is a folder, append the filename from URL.
@@ -49,7 +61,7 @@ module.exports = {
 
     let header = `**File**: ${ destpath }`;
 
-    reply.edit(`${ header }\n**Status**: Pending`);
+    editReply(reply, `${ header }\n**Status**: Pending`);
 
     const response = await fetch(url, {
       method: "get",
@@ -66,13 +78,43 @@ module.exports = {
       header += ` (${ bytes(fileSize) })`;
     }
 
-    reply.edit(`${ header }\n**Status**: Downloading...`);
+    editReply(reply, `${ header }\n**Status**: Downloading...`);
+
+    function onRequestDeleted(deletedMessage) {
+      if (deletedMessage.id === referencedMessage.id) {
+        debug(`request deleted. Cancelling execution.`);
+
+        ps.lookup({
+          command: "rclone",
+          arguments: `${ remote }:${ destpath }`,
+        }, (error, resultList) => {
+          if (error) {
+            console.error(error);
+            return;
+          }
+
+          resultList.forEach(async (process) => {
+            if( process ){
+              debug(`Deleting reply.`);
+              response.body.destroy();
+              reply.delete();
+              ps.kill(process.pid);
+            }
+          });
+        });
+
+        client.off("messageDelete", onRequestDeleted);
+      }
+    }
+
+    // If the request message is deleted, we cancel the job.
+    client.on("messageDelete", onRequestDeleted);
 
     progress(response.body, {
       delay: 1000,
       total: fileSize,
-    }).on("progress", ({ doneh, rateh, etaDate }) => {
-      reply.edit(`${ header }\n**Status**: ${ doneh } @ ${ rateh }/s. ETA: ${ etaDate.toLocaleString() }.`);
+    }).on("progress", async ({ doneh, rateh, etaDate }) => {
+      editReply(reply, `${ header }\n**Status**: ${ doneh } @ ${ rateh }/s. ETA: ${ etaDate.toLocaleString() }.`);
     });
 
     response.body.on("error", (error) => {
@@ -80,10 +122,13 @@ module.exports = {
     });
 
     response.body.on("end", () => {
-      reply.edit(`${ header }\n**Status**: Finishing last bytes...`);
+      editReply(reply, `${ header }\n**Status**: Finishing last bytes...`);
     });
 
     const fileId = await rcat(response.body, `${ remote }:${ destpath }`);
-    reply.edit(`${ header }\nhttps://drive.google.com/file/d/${ fileId }`);
+
+    client.off("messageDelete", onRequestDeleted);
+
+    editReply(reply, `${ header }\nhttps://drive.google.com/file/d/${ fileId }`);
 	},
 };
