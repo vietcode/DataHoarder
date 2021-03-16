@@ -88,18 +88,10 @@ function rcat(stream, filename) {
       reject(data.toString());
     });
 
-    rcat.stdout.on("end", () => {
+    rcat.stdout.on("end", async () => {
       // Retrieves ID of the new file.
-      const lsf = rclone.lsf(filename, "--format", "i");
-      let fileId = "";
-
-      lsf.stdout.on("data", data => {
-        fileId += data;
-      });
-
-      lsf.stdout.on("end", () => {
-        resolve(fileId.trim());
-      });
+      const fileId = await rclone.promises.lsf(filename, "--format", "i");
+      resolve(fileId);
     });
 
     stream.pipe(rcat.stdin);
