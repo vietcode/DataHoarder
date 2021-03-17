@@ -15,7 +15,8 @@
   "license": "MIT",
   "repository": "https://github.com/vietcode/DataHoarder.git",
   "engines": {
-    "node": ">=14.0"
+    "node": ">=14.0",
+    "npm": "7.6.3"
   },
   "dependencies": {
     "@ffmpeg-installer/ffmpeg": "^1.0.20",
