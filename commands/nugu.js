@@ -4,6 +4,10 @@ const debug = require("debug")("hoarder:nugu");
 const Discord = require("discord.js");
 const nugu = require("nugu");
 
+const {
+  USENET_POST_PROGRESS,
+} = process.env;
+
 module.exports = {
   name: "nugu",
   aliases: [],
@@ -47,9 +51,11 @@ module.exports = {
       "nzb-title": title,
       // Uses the remote file ID as name, but keeps extension.
       filename: ({ ID, Name }) => `${ ID }${ extname(Name) }`,
-      progress: function(line) {
-        reply.edit(`${ header }\n${ line }`);
+      progress: USENET_POST_PROGRESS || function({ articles, files, totalSize, read, posted, checked }) {
+        reply.edit(`${ header } (${ totalSize })\n**Status**: ${ posted }/${ articles } article(s) posted. ${ checked } article(s) checked.`);
       },
+      // Enable 1 connection for post checking.
+      "check-connections": 1,
     });
 
     // Create an embed and attach the NZB file to it.
