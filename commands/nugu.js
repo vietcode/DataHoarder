@@ -6,6 +6,7 @@ const nugu = require("nugu");
 
 const {
   USENET_POST_PROGRESS,
+  USENET_POST_GROUPS,
 } = process.env;
 
 module.exports = {
@@ -18,14 +19,19 @@ module.exports = {
       name: "sourcePath",
       type: "text",
     },
+    {
+      name: "groups",
+      type: "text",
+    },
   ],
   usage: "<sourcePath>",
   /**
    * Handles the posting request
    * @param {Discord.Message} reply - The reply message.
    * @param {string} sourcePath The path to the source to post.
+   * @param {string} [groups] Comma-separated list of groups to post to.
    */
-	async execute(reply, sourcePath, ...args) {
+	async execute(reply, sourcePath, groups = USENET_POST_GROUPS) {
     const referencedMessage = reply.referencedMessage;
     const { channel, author } = referencedMessage;
 
@@ -43,6 +49,7 @@ module.exports = {
     // @TODO: Parse file name to set `nzb-tag` and `nzb-category` and `meta` options.
 
     const nzb = await nugu(`${ remote }:${ sourcePath }`, {
+      groups,
       // Use the reply's ID in place of filename in subject .
       subject: `{comment} [{0filenum}/{files}] - "${ reply.id }" yEnc ({part}/{parts}) {filesize} {comment2}`,
       // Use the requester's nickname.
