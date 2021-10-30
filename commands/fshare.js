@@ -87,7 +87,7 @@ module.exports = {
    * @param {URL} url The URL to download
    * @param {string} [destpath] Path to Google Drive to save file to.
    */
-  async execute(reply, url, destpath = "") {
+  async execute(reply, url, password = "", destpath = "") {
     // Removes any search params.
     url.search = "";
 
@@ -97,7 +97,7 @@ module.exports = {
     const { location } = await post("/session/download", {
       url,
       token,
-      password: "",
+      password,
     }, {
       // Fshare requires the `session_id` set in cookie.
       "Cookie": `session_id=${ session_id }`,
