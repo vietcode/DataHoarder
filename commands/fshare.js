@@ -6,10 +6,10 @@ const {
   FSHARE_APP_KEY = "L2S7R6ZMagggC5wWkQhX2+aDi467PPuftWUMRFSn",
   FSHARE_USER_EMAIL = "",
   FSHARE_PASSWORD = "",
+  FSHARE_USER_AGENT = "Fshare/1 CFNetwork/1209 Darwin/20.2.0",
 } = process.env;
 
 const API_URL = "https://api.fshare.vn/api";
-const USER_AGENT = "Fshare/1 CFNetwork/1209 Darwin/20.2.0";
 
 async function checkStatus(response) {
   if (response.ok) { // response.status >= 200 && response.status < 300
@@ -38,7 +38,7 @@ async function post(endpoint, body, headers = {}) {
   return fetch(`${API_URL}${ endpoint }`, {
     method: "post",
     headers: {
-      "User-Agent": USER_AGENT,
+      "User-Agent": FSHARE_USER_AGENT,
       "Content-Type": "application/json",
       ...headers,
     },
