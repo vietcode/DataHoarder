@@ -81,6 +81,12 @@ function progress(stream, { delay = 0, total } = {}) {
  */
 function rcat(stream, filename) {
   return new Promise((resolve, reject) => {
+    // Checks if the file exists and resolves with the file ID immediately.
+    let fileId = await rclone.promises.lsf(filename, "--format", "i");
+    if (fileId) {
+      return resolve(fileId);
+    }
+
     const rcat = rclone.rcat(filename);
 
     rcat.stderr.on("data", (data) => {
@@ -90,7 +96,7 @@ function rcat(stream, filename) {
 
     rcat.stdout.on("end", async () => {
       // Retrieves ID of the new file.
-      const fileId = await rclone.promises.lsf(filename, "--format", "i");
+      fileId = await rclone.promises.lsf(filename, "--format", "i");
       resolve(fileId);
     });
 
