@@ -1,4 +1,5 @@
 const { throttle } = require("throttle-debounce");
+const debug = require("debug");
 
 const rclone = require("./bin/rclone.js");
 
@@ -80,11 +81,20 @@ function progress(stream, { delay = 0, total } = {}) {
  * @param {string} filename The file name to store
  */
 function rcat(stream, filename) {
-  return new Promise((resolve, reject) => {
+  const log = debug("hoarder:rcat");
+
+  return new Promise(async (resolve, reject) => {
     // Checks if the file exists and resolves with the file ID immediately.
-    let fileId = await rclone.promises.lsf(filename, "--format", "i");
-    if (fileId) {
-      return resolve(fileId);
+    try {
+      const fileId = await rclone.promises.lsf(filename, "--format", "i");
+      if (fileId) {
+        stream.destroy();
+        // Resolves with the existing file ID after some time to ensure all other edits have been made.
+        setTimeout(() => resolve(fileId), 2000);
+        return;
+      }
+    } catch (_error) {
+      log(`File ${ filename } does not exists. Continuing...`);
     }
 
     const rcat = rclone.rcat(filename);
@@ -96,7 +106,7 @@ function rcat(stream, filename) {
 
     rcat.stdout.on("end", async () => {
       // Retrieves ID of the new file.
-      fileId = await rclone.promises.lsf(filename, "--format", "i");
+      const fileId = await rclone.promises.lsf(filename, "--format", "i");
       resolve(fileId);
     });
 
